@@ -1,0 +1,42 @@
+{
+  "mode": "auto",
+  "feed_pause_minutes": 30,
+  "days": {
+    "monday": {
+      "on": "08:00",
+      "off": "20:00"
+    },
+    "tuesday": {
+      "on": "08:00",
+      "off": "20:00"
+    },
+    "wednesday": {
+      "on": "08:00",
+      "off": "20:00"
+    },
+    "thursday": {
+      "on": "08:00",
+      "off": "20:00"
+    },
+    "friday": {
+      "on": "08:00",
+      "off": "20:00"
+    },
+    "saturday": {
+      "on": "09:00",
+      "off": "22:00"
+    },
+    "sunday": {
+      "on": "09:00",
+      "off": "22:00"
+    }
+  },
+  "manual_override": {
+    "active": false,
+    "until": null
+  },
+  "feed_pause": {
+    "active": false,
+    "until": null
+  }
+}
