@@ -97,16 +97,6 @@ async def handle_delay(request):
     sauver_etat(etat)
     return f"Délais entre lampes fixé à {delais} secondes."
 
-@app.get('/relais')
-async def handle_relais(request):
-    print("[/relais] Reçu !")
-    reponse = ""
-    for c in range(4):
-        value = relais[c].value()
-        status = ("on" if value == 1 else "off")
-        reponse += f"relai {c} : {status} - "
-    return reponse
-
 @app.get('/endpoints')
 async def handle_endpoints(request):
     print("[/endpoints] Reçu !")
@@ -116,8 +106,11 @@ async def handle_endpoints(request):
          
 # Lancement
 def main():
-    connect_wifi(config["SSID"], "the a la menthe")
-    app.run(host="0.0.0.0", port=80)
+    if connect_wifi(config["SSID"], "the a la menthe"):
+        app.run(host="0.0.0.0", port=80)
+    else:
+        print("Echec de connexion")
+        
 
 # Lancer le tout
 main()
