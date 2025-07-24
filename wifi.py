@@ -1,10 +1,13 @@
 import network
 import time
+from storage import charger_config
+
+config = charger_config()
 
 def connect_wifi(ssid, password):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    ip = '192.168.50.202'
+    ip = config["IP"]
     netmask = '255.255.255.0'
     gateway = '192.168.50.1'
     dns = '8.8.8.8'  # Optionnel, peut être le même que la gateway
