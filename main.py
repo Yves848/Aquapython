@@ -13,6 +13,8 @@ from machine import Pin
 etat = charger_etat()
 config = charger_config()
 relais = {}
+operation = 0
+mode = None 
 PIN1 = config["PIN1"]
 PIN2 = config["PIN2"]
 PIN3 = config["PIN3"]
@@ -48,12 +50,20 @@ async def animate_led(from_color, to_color, duration=1.0):
     np.write()
     
 async def change_status(value):
-    for c in range(3):
-        relais[c].value(value)
-        status = ("on" if value == 1 else "off")
-        print(f"relai {c} : {status}")
-        await asyncio.sleep(delais)
-
+    global operation
+    if operation == 0:
+        operation = value
+        for c in range(3):
+            relais[c].value(value)
+            status = ("on" if value == 1 else "off")
+            print(f"relai {c} : {status}")
+            if c < 2:
+                await asyncio.sleep(delais)
+        status = "allumé" if value == 1 else "éteint"
+        print(f"Eclairage {status}")
+        operation = 0
+        
+    
 # Microdot setup
 app = Microdot()
 Response.default_content_type = 'application/json'
@@ -61,25 +71,39 @@ Response.default_content_type = 'application/json'
 @app.post('/day')
 async def handle_day(request):
     print("[/day] Reçu !")
+    global operation
+    if operation != 0:
+        print("operation en cours")
+        return {"message": "Controleur occupé"}
+    if etat["state"] == "day":
+        print("Déjà allumé")
+        return {"message": "Eclairage déjà allumé"}
     etat["state"] = "day"
-    asyncio.create_task(change_status(1))
     sauver_etat(etat)
+    asyncio.create_task(change_status(1))
     asyncio.create_task(animate_led((0, 0, 255), (255, 255, 0), 2.0))  # bleu → jaune
     return {"message": "Day mode activé."}
 
 @app.post('/night')
 async def handle_night(request):
     print("[/night] Reçu !")
-    etat["state"] = "night"   
-    asyncio.create_task(change_status(0))
+    global operation
+    if operation != 0:
+        print("operation en cours")
+        return {"message": "Controleur occupé"}
+    if etat["state"] == "night":
+        print("Déjà éteint")
+        return {"message": "Eclairage déjà éteint"}
+    etat["state"] = "night"
     sauver_etat(etat)
+    asyncio.create_task(change_status(0))
     asyncio.create_task(animate_led((255, 255, 0), (0, 0, 50), 2.0))  # jaune → bleu foncé
     return {"message": "Night mode activé."}
 
 @app.get('/data')
 def handle_data(request):
     print("[/data] Requête reçue")
-    etat_actuel = charger_etat()
+    #etat_actuel = charger_etat()
     asyncio.create_task(animate_led((0, 255, 0), (0, 50, 0), 0.5))  # flash vert
     return etat
 
